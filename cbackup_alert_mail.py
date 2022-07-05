@@ -93,23 +93,57 @@ def parse_yaml(file):
         db_pass = dbc["password"]
         db_name = dbc["name"]
 
-        dbm = conf["mail"]
-        mail_host = dbm["host"]
-        mail_port = dbm["port"]
-        mail_from_email = dbm["from_email"]
-        mail_from = dbm["from"]
-        mail_to = dbm["to"]
+        #
+        # Confifuring mail using the config file will still function but it is 
+        # not recommended. Instead use the mailer configuration inside of
+        # cbackup
+        # The setting in the yaml config will always override cbackup settings
+        #
 
-        dbms = dbm["security"]
-        mail_ssl = dbms["ssl"]
-        mail_keyfile = dbms["keyfile"]
-        mail_certfile = dbms["certfile"]
+        if "mail" in conf:
+            print("""\
+-----------------------------DEPRECATED------------------------------
+Using the `mail:` section of the yaml config is deprecated! All
+settings in the cbackup mailer config will override the yaml config
 
-        levels = dbm["send_on"]
+Instead use the `Mailer settings` of cBackup to configure this script
+---------------------------------------------------------------------""")
+
+        mail_host = None
+        mail_port = None
+        mail_from_email = None
+        mail_from = None
+        mail_to = None
+        mail_ssl = None
+        mail_keyfile = None
+        mail_certfile = None
+        levels = None
+
+        try:
+            dbm = conf["mail"]
+            mail_host = dbm["host"]
+            mail_port = dbm["port"]
+            mail_from_email = dbm["from_email"]
+            mail_from = dbm["from"]
+            mail_to = dbm["to"]
+    
+            dbms = dbm["security"]
+            mail_ssl = dbms["ssl"]
+            mail_keyfile = dbms["keyfile"]
+            mail_certfile = dbms["certfile"]
+            levels = dbm["send_on"]
+        except KeyError:
+            # Ignore errors thrown in this block because that part of the
+            # config is deprecated, so we don't care anymore
+            pass
+
+        levels = conf["level"]
 
         return (db_host, db_port, db_user, db_pass, db_name, mail_host, mail_port, mail_from_email, mail_from, mail_to, mail_ssl, mail_keyfile, mail_certfile, levels)
-    except KeyError:
-        print("Malformed config file!")
+    except KeyError as err:
+        print(f"\nCould not find {err} block\n")
+        print("Malformed/Outdated config file!")
+        print("Visit https://raw.githubusercontent.com/PoetryInCode/cbackup_mailer/master/default.yml for the latest config")
         print("Exiting...")
         sys.exit(1)
 

@@ -1,0 +1,21 @@
+# Default config for the cbackup alert mailer script
+# Fill all `null` values, if applicable
+
+database:
+  host: "localhost" # host url or ip of database
+  port:  3306
+  user: "cbackup"
+  password: null
+  name: "cbackup" # This is the name of the sql database that contains all of the cbackup data
+
+# These are the levels of logs that the mailer will report in emails
+# Comment out the levels of logs that you don't want alerts about
+level:
+  - EMERG
+  - CRITICAL
+  - ERROR
+  - ALERT
+  - WARNING
+  - NOTICE
+#  - DEBUG
+#  - INFO
