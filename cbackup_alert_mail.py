@@ -230,8 +230,19 @@ if __name__ == "__main__":
 
     cursor = db.cursor()
 
-    cursor.execute("select * from log_scheduler where DATE(time) >= date_sub(now(), interval 1 hour);")
-    logs = map(Log, cursor.fetchall())
+    query = f"select * from log_scheduler where severity in ({','.join([chr(39)+level+chr(39) for level in levels])}) and time >= now() - interval 1 hour order by time desc;"
+    cursor.execute(query)
+    res = cursor.fetchall()
+    logs = list(map(Log, res))
+
+    cursor.execute("""select * from config where `key` like '%mailer%';""")
+
+    should_mail, mail_from_email, mail_from, _, should_smtp, mail_host, _, mail_port, _, _, _, mail_type = map(lambda a: a[1], cursor.fetchall())
+
+    if (not should_mail == "1") or (not mail_type == "smtp"):
+        print("Application disabled!")
+        print("Exiting...")
+        sys.exit(1)
 
     db.close()
 
@@ -248,7 +259,6 @@ if __name__ == "__main__":
             certfile=mail_certfile,
             keyfile=mail_keyfile)
 
-    alerts = [log for log in logs if log.severity in allowed_severity]
     mail = generate_mail(alerts)
     mail["From"] = f"{mail_from} <{mail_from_email}>"
     mail["To"] = mail_to
