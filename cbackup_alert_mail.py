@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2022 Solomon Wagner
+#
+# SPDX-License-Identifier: LPL-1.02
+
 help = """cbackup_alert_mail.py
 
 This script is designed to be run by a scheduler, like systemd. When run, it will connect to the specified database that CBackup uses and serch through logs from the past hour.

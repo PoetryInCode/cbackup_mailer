@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2022 Solomon Wagner
+
+SPDX-License-Identifier: LPL-1.02
+-->
+
 # CBackup Mailer
 
 I made this project so that CBackup would send email alerts whenever certain types of logs would show up in the scheduler.

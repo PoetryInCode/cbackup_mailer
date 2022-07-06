@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2022 Solomon Wagner
+#
+# SPDX-License-Identifier: LPL-1.02
+
 # Default config for the cbackup alert mailer script
 # Fill all `null` values, if applicable
 
