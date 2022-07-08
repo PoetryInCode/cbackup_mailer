@@ -2,8 +2,17 @@
 #
 # SPDX-License-Identifier: LPL-1.02
 
-# Default config for the cbackup alert mailer script
-# Fill all `null` values, if applicable
+#----------------------------------------------------#
+# Default config for the cbackup alert mailer script #
+# Fill all `null` values, if applicable              #
+#----------------------------------------------------#
+
+
+# the `mail-to` tag can be a single email
+# mail-to: "admin@example.com"
+# it can also have an array of emails that it will send reports to
+# mail-to: ["example1@example.com", "example2@example.com"]
+mail-to: null
 
 database:
   host: "localhost" # host url or ip of database

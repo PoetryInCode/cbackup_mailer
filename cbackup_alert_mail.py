@@ -142,6 +142,7 @@ Instead use the `Mailer settings` of cBackup to configure this script
             pass
 
         levels = conf["level"]
+        mail_to = conf["mail-to"]
 
         return (db_host, db_port, db_user, db_pass, db_name, mail_host, mail_port, mail_from_email, mail_from, mail_to, mail_ssl, mail_keyfile, mail_certfile, levels)
     except KeyError as err:
@@ -204,6 +205,7 @@ if __name__ == "__main__":
     allowed_severity = LogSeverity.reasonable()
 
     has_config = False
+    cf_name = None
 
     for o, a in opts:
         if o in ("-v", "--version"):
@@ -213,6 +215,7 @@ if __name__ == "__main__":
             print(help)
             sys.exit(0)
         elif o in ("-c", "--config"):
+            cf_name = a
             with open(a, "r") as cf:
                 db_host, db_port, db_user, db_passwd, db_name, mail_host, mail_port, mail_from_email, mail_from, mail_to, mail_ssl, mail_keyfile, mail_certfile, levels = parse_yaml(cf)
                 has_config = True
@@ -262,6 +265,9 @@ if __name__ == "__main__":
         smtp.starttls(
             certfile=mail_certfile,
             keyfile=mail_keyfile)
+
+    if len(mail_to) == 0:
+        print(f"An email recipient must be provided in `{cf_name}`")
 
     mail = generate_mail(logs)
     mail["From"] = f"{mail_from} <{mail_from_email}>"
