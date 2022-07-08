@@ -263,7 +263,7 @@ if __name__ == "__main__":
             certfile=mail_certfile,
             keyfile=mail_keyfile)
 
-    mail = generate_mail(alerts)
+    mail = generate_mail(logs)
     mail["From"] = f"{mail_from} <{mail_from_email}>"
     mail["To"] = mail_to
     mail["Subject"] = "CBackup Alerts"
