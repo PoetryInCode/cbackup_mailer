@@ -15,7 +15,9 @@ FLAGS:
 \t-v | --version
 \t\tDisplay version information
 \t-c {FILE} | --config={FILE}
-\t\tUses the file `FILE` as the config for the program"""
+\t\tUses the file `FILE` as the config for the program
+\t--test-mail
+\t\tSends a test email to all recipients"""
 
 import mysql.connector
 from enum import Enum
@@ -53,6 +55,7 @@ class LogAction(Enum):
     WORKER_SEND_RESULT = "WORKER SEND RESULT"
     GIT_COMMIT = "GIT COMMIT"
     NODE_REQUEST = "NODE REQUEST"
+    NODE_AUTH = "NODE AUTH"
 
     def __str__(self):
         return self.value
@@ -186,7 +189,7 @@ if __name__ == "__main__":
     opts, args = getopt.getopt(
         sys.argv[1:],
         "vhc",
-        ["version", "help", "config="])
+        ["version", "help", "config=", "test-mail"])
 
     db_host = "localhost"
     db_user = "cbackup"
@@ -207,6 +210,8 @@ if __name__ == "__main__":
     has_config = False
     cf_name = None
 
+    send_test_mail = False
+
     for o, a in opts:
         if o in ("-v", "--version"):
             print("Python: " + sys.version)
@@ -219,10 +224,13 @@ if __name__ == "__main__":
             with open(a, "r") as cf:
                 db_host, db_port, db_user, db_passwd, db_name, mail_host, mail_port, mail_from_email, mail_from, mail_to, mail_ssl, mail_keyfile, mail_certfile, levels = parse_yaml(cf)
                 has_config = True
-            break
+        elif o == "--test-mail":
+            print("Sending test mail")
+            send_test_mail = True
         else:
             pass
     
+    mail = ""
     if not has_config:
         print("A valid config file was not provided!")
         print("Exiting...")
@@ -269,8 +277,17 @@ if __name__ == "__main__":
     if len(mail_to) == 0:
         print(f"An email recipient must be provided in `{cf_name}`")
 
-    mail = generate_mail(logs)
+    if send_test_mail:
+        msg = MIMEMultipart("alternative")
+        msg.attach(MIMEText("""<html><body><pre>This is a test email sent from cbackup_mailer</pre></body></html>""", _subtype="html", _charset="UTF-8"))
+        mail = msg
+    else:
+        mail = generate_mail(logs)
+
     mail["From"] = f"{mail_from} <{mail_from_email}>"
-    mail["To"] = mail_to
+    if type(mail) == str:
+        mail["To"] = mail_to
+    else:
+        mail["To"] = ", ".join(mail_to)
     mail["Subject"] = "CBackup Alerts"
     smtp.sendmail(mail_from_email, mail_to, mail.as_string())
